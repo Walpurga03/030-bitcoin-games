@@ -3,12 +3,12 @@ import { useEffect } from "react";
 import styled from "styled-components";
 import TileMap from "./tileMap";
 import overSound from "./sounds/gameOver.wav";
-import winSound from "./sounds/gameWin.wav";
+import winSound from "./sounds/gameWin1.wav";
 
 const BtcMan = () => {
   useEffect(() => {
-    const tileSize = 32;
-    const velocity = 2;
+    const tileSize = 64;
+    const velocity = 4;
 
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
@@ -24,22 +24,38 @@ const BtcMan = () => {
     tileMap.setCanvasSize(canvas);
 
     function gameLoop() {
+      // Die TileMap auf dem Canvas zeichnen
       tileMap.draw(ctx);
+
+      // Das Spielende zeichnen, falls erforderlich
       drawGameEnd();
+
+      // Pacman auf dem Canvas zeichnen und Spielstatus übergeben
       pacman.draw(ctx, pause(), enemies);
+
+      // Gegner auf dem Canvas zeichnen und Spielstatus übergeben
       enemies.forEach((enemy) => enemy.draw(ctx, pause(), pacman));
+
+      // Überprüfen, ob das Spiel verloren wurde
       checkGameOver();
+
+      // Überprüfen, ob das Spiel gewonnen wurde
       checkGameWin();
     }
     function checkGameOver() {
       if (!gameOver) {
+        // Überprüfen, ob das Spiel verloren wurde
         gameOver = isGameOver();
+
         if (gameOver) {
+          // Wenn das Spiel verloren wurde, den Game Over Sound abspielen
           gameOverSound.play();
         }
       }
     }
+
     function isGameOver() {
+      // Überprüfen, ob mindestens ein Gegner existiert, der die Bedingung erfüllt
       return enemies.some(
         (enemy) => !pacman.powerDotActive && enemy.collideWith(pacman)
       );
@@ -47,40 +63,38 @@ const BtcMan = () => {
 
     function checkGameWin() {
       if (!gameWin) {
+        // Überprüfen, ob das Spiel gewonnen wurde
         gameWin = tileMap.didWin();
+
         if (gameWin) {
+          // Wenn das Spiel gewonnen wurde, den Game Win Sound abspielen
           gameWinSound.play();
         }
       }
     }
     function pause() {
+      // Überprüfen, ob das Spiel pausiert werden soll
       return !pacman.madeFirstMove || gameOver || gameWin;
     }
 
     function drawGameEnd() {
       if (gameOver || gameWin) {
+        // Überprüfen, ob das Spiel verloren oder gewonnen wurde
         const text = gameOver ? "Game Over" : "You Win!";
         const rectHeight = 80;
         const gradientColors = ["magenta", "blue", "red"];
 
+        // Hintergrundrechteck zeichnen
         drawBackgroundRect(rectHeight);
+
+        // Text zeichnen
         drawText(text, rectHeight, gradientColors);
       }
     }
 
     function drawBackgroundRect(rectHeight) {
       ctx.fillStyle = "black";
-      ctx.fillRect(0, canvas.height / 3.2, canvas.width, rectHeight);
-    }
-
-    function drawText(text, rectHeight, gradientColors) {
-      const fontSize = 75;
-      const font = `${fontSize}px comic sans`;
-      const gradient = createGradient(gradientColors);
-
-      ctx.font = font;
-      ctx.fillStyle = gradient;
-      ctx.fillText(text, 10, canvas.height / 2);
+      ctx.fillRect(64, canvas.height / 2.6, canvas.width - 128, 100);
     }
 
     function createGradient(gradientColors) {
@@ -91,6 +105,15 @@ const BtcMan = () => {
       });
 
       return gradient;
+    }
+
+    function drawText(text, rectHeight, gradientColors) {
+      const fontSize = 75;
+      const font = `${fontSize}px comic sans`;
+      const gradient = createGradient(gradientColors);
+      ctx.font = font;
+      ctx.fillStyle = gradient;
+      ctx.fillText(text, 275, 245);
     }
 
     const interval = setInterval(gameLoop, 1000 / 75);

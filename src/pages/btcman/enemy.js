@@ -75,22 +75,6 @@ export default class Enemy {
     }
     ctx.drawImage(this.image, this.x, this.y, this.tileSize, this.tileSize);
   }
-  #setImage1(ctx, pacman) {
-    if (pacman.powerDotActive) {
-      this.#setImageWhenPowerDotIsActive(pacman);
-    } else {
-      this.image = this.normalGhost1;
-    }
-    ctx.drawImage(this.image, this.x, this.y, this.tileSize, this.tileSize);
-  }
-  #setImage2(ctx, pacman) {
-    if (pacman.powerDotActive) {
-      this.#setImageWhenPowerDotIsActive(pacman);
-    } else {
-      this.image = this.normalGhost2;
-    }
-    ctx.drawImage(this.image, this.x, this.y, this.tileSize, this.tileSize);
-  }
 
   #setImageWhenPowerDotIsActive(pacman) {
     if (pacman.powerDotAboutToExpire) {

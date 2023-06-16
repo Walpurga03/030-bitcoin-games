@@ -21,6 +21,17 @@ export default class Pacman {
     this.pacmanAnimationTimer = null;
 
     document.addEventListener("keydown", this.#keydown);
+    document.addEventListener(
+      "touchstart",
+      this.#handleTouchStart.bind(this),
+      false
+    );
+    document.addEventListener(
+      "touchmove",
+      this.#handleTouchMove.bind(this),
+      false
+    );
+
     this.#loadPacmanImages();
 
     this.pacmanRotation = this.Rotation.right;
@@ -35,6 +46,7 @@ export default class Pacman {
 
     this.madeFirstMove = false;
   }
+
   Rotation = {
     right: 0,
     down: 1,
@@ -88,6 +100,7 @@ export default class Pacman {
 
     this.pacmanImageIndex = 0;
   }
+
   #keydown = (event) => {
     // Up
     if (event.key === "ArrowUp") {
@@ -118,6 +131,65 @@ export default class Pacman {
       this.madeFirstMove = true;
     }
   };
+
+  #handleTouchStart(event) {
+    const touchX = event.touches[0].clientX;
+    const touchY = event.touches[0].clientY;
+
+    this.touchStartX = touchX;
+    this.touchStartY = touchY;
+  }
+
+  #handleTouchMove(event) {
+    if (!this.touchStartX || !this.touchStartY) {
+      return;
+    }
+
+    const touchX = event.touches[0].clientX;
+    const touchY = event.touches[0].clientY;
+
+    const deltaX = touchX - this.touchStartX;
+    const deltaY = touchY - this.touchStartY;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX > 0) {
+        // Right
+        if (this.currentMovingDirection !== MovingDirection.left) {
+          this.currentMovingDirection = MovingDirection.right;
+          this.requestedMovingDirection = MovingDirection.right;
+          this.madeFirstMove = true;
+        }
+      } else {
+        // Left
+        if (this.currentMovingDirection !== MovingDirection.right) {
+          this.currentMovingDirection = MovingDirection.left;
+          this.requestedMovingDirection = MovingDirection.left;
+          this.madeFirstMove = true;
+        }
+      }
+    } else {
+      if (deltaY > 0) {
+        // Down
+        if (this.currentMovingDirection !== MovingDirection.up) {
+          this.currentMovingDirection = MovingDirection.down;
+          this.requestedMovingDirection = MovingDirection.down;
+          this.madeFirstMove = true;
+        }
+      } else {
+        // Up
+        if (this.currentMovingDirection !== MovingDirection.down) {
+          this.currentMovingDirection = MovingDirection.up;
+          this.requestedMovingDirection = MovingDirection.up;
+          this.madeFirstMove = true;
+        }
+      }
+    }
+
+    this.touchStartX = null;
+    this.touchStartY = null;
+
+    event.preventDefault();
+  }
 
   #move() {
     if (this.currentMovingDirection !== this.requestedMovingDirection) {
@@ -175,6 +247,7 @@ export default class Pacman {
         break;
     }
   }
+
   #animate() {
     if (this.pacmanAnimationTimer === null) {
       return;
@@ -188,6 +261,7 @@ export default class Pacman {
       }
     }
   }
+
   #eatDot() {
     if (this.tileMap.eatDot(this.x, this.y) && this.madeFirstMove) {
       this.wakaSound.play();
